@@ -42,6 +42,9 @@ class esmart:
 	def send(self, pl):
 		self.ser.write(self.pack(pl))
 
+	def export(self):
+		return(self.fields)	
+	
 	def parse(self, data):
 		for c in data:
 			if (self.state == STATE_START):

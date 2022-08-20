@@ -18,6 +18,7 @@ class esmart:
 	def __init__(self):
 		self.state = STATE_START
 		self.data = []
+		self.fields = {}
 		self.callback = False
 		self.port = ""
 		self.timeout = 0
@@ -95,8 +96,8 @@ class esmart:
 			while (self.ser.inWaiting()):
 				self.parse(self.ser.read(100))
 
-			# Send poll packet to request data every 5 seconds
-			if (time.time() - self.timeout) > 5:
+			# Send poll packet to request data every 1 seconds
+			if (time.time() - self.timeout) > 1:
 				self.ser.write(REQUEST_MSG0)
 				self.timeout = time.time()
 				#time.sleep(0.5)
@@ -115,7 +116,7 @@ class esmart:
 					else:
 						self.ser.close()		
 				except serial.serialutil.SerialException:
-					time.sleep(0.5)
+					#time.sleep(0.5)
 					self.ser.close()
 			print("Error fixed")
 

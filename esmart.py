@@ -1,16 +1,17 @@
 # Library for communicating with eSmart 3 MPPT charger
 # skagmo.com, 2018
+# modified for data export
 
-import struct, time, serial, socket, requests
-#from collections import namedtuple
+import time, serial #, struct, socket, requests
+
 
 # States
 STATE_START = 0
 STATE_DATA = 1
 
-REQUEST_MSG0 = b"\xaa\x01\x01\x01\x00\x03\x00\x00\x1e\x32"
-LOAD_OFF = b"\xaa\x01\x01\x02\x04\x04\x01\x00\xfe\x13\x38"
-LOAD_ON = b"\xaa\x01\x01\x02\x04\x04\x01\x00\xfd\x13\x39"
+REQUEST_MSG0	= b"\xaa\x01\x01\x01\x00\x03\x00\x00\x1e\x32"
+LOAD_OFF		= b"\xaa\x01\x01\x02\x04\x04\x01\x00\xfe\x13\x38"
+LOAD_ON 		= b"\xaa\x01\x01\x02\x04\x04\x01\x00\xfd\x13\x39"
 
 DEVICE_MODE = ["IDLE", "CC", "CV", "FLOAT", "STARTING"]
 
@@ -44,7 +45,7 @@ class esmart:
 		self.ser.write(self.pack(pl))
 
 	def export(self):
-		return(self.fields)	
+		return(self.fields)
 	
 	def parse(self, data):
 		for c in data:
@@ -75,28 +76,28 @@ class esmart:
 
 						# Type 0 packet contains most data
 						if (self.data[3] == 0):
-							fields = {}
-							fields['chg_mode'] = int.from_bytes(self.data[7:9], byteorder='little')
-							fields['pv_volt'] = int.from_bytes(self.data[9:11], byteorder='little') / 10.0
-							fields['bat_volt'] = int.from_bytes(self.data[11:13], byteorder='little') / 10.0
-							fields['chg_cur'] = int.from_bytes(self.data[13:15], byteorder='little') / 10.0
-							fields['load_volt'] = int.from_bytes(self.data[17:19], byteorder='little') / 10.0
-							fields['load_cur'] = int.from_bytes(self.data[19:21], byteorder='little') / 10.0
-							fields['chg_power'] = int.from_bytes(self.data[21:23], byteorder='little')
-							fields['load_power'] = int.from_bytes(self.data[23:25], byteorder='little')
-							fields['bat_temp'] = self.data[25]
-							fields['int_temp'] = self.data[27]
-							fields['soc'] = self.data[29]
-							fields['co2_gram'] = int.from_bytes(self.data[33:35], byteorder='little')
+							self.fields = {}
+							self.fields['chg_mode']	= int.from_bytes(self.data[7:9],	byteorder='little')
+							self.fields['pv_volt']	= int.from_bytes(self.data[9:11],	byteorder='little') / 10.0
+							self.fields['bat_volt']	= int.from_bytes(self.data[11:13],	byteorder='little') / 10.0
+							self.fields['chg_cur']	= int.from_bytes(self.data[13:15],	byteorder='little') / 10.0
+							self.fields['load_volt']	= int.from_bytes(self.data[17:19],	byteorder='little') / 10.0
+							self.fields['load_cur']	= int.from_bytes(self.data[19:21],	byteorder='little') / 10.0
+							self.fields['chg_power']	= int.from_bytes(self.data[21:23],	byteorder='little')
+							self.fields['load_power']= int.from_bytes(self.data[23:25],	byteorder='little')
+							self.fields['bat_temp']	= self.data[25]
+							self.fields['int_temp']	= self.data[27]
+							self.fields['soc']		= self.data[29]
+							self.fields['co2_gram']	= int.from_bytes(self.data[33:35], byteorder='little')
 
-							self.callback(fields)
+							self.callback(self.fields)
 
 	def tick(self):
 		try:
 			while (self.ser.inWaiting()):
 				self.parse(self.ser.read(100))
 
-			# Send poll packet to request data every 1 seconds
+			# Send poll packet to request data every x seconds
 			if (time.time() - self.timeout) > 1:
 				self.ser.write(REQUEST_MSG0)
 				self.timeout = time.time()
@@ -110,13 +111,13 @@ class esmart:
 			while not opened:
 				try:
 					self.ser = serial.Serial(self.port,38400,timeout=0)
-					time.sleep(0.5)
+					#time.sleep(0.1)
 					if self.ser.read(100):
 						opened = 1	
 					else:
 						self.ser.close()		
 				except serial.serialutil.SerialException:
-					#time.sleep(0.5)
+					time.sleep(0.5)
 					self.ser.close()
 			print("Error fixed")
 

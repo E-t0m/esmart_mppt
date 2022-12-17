@@ -77,18 +77,18 @@ class esmart:
 						# Type 0 packet contains most data
 						if (self.data[3] == 0):
 							self.fields = {}
-							self.fields['chg_mode']	= int.from_bytes(self.data[7:9],	byteorder='little')
-							self.fields['pv_volt']	= int.from_bytes(self.data[9:11],	byteorder='little') / 10.0
-							self.fields['bat_volt']	= int.from_bytes(self.data[11:13],	byteorder='little') / 10.0
-							self.fields['chg_cur']	= int.from_bytes(self.data[13:15],	byteorder='little') / 10.0
+							self.fields['chg_mode']		= int.from_bytes(self.data[7:9],	byteorder='little')
+							self.fields['pv_volt']		= int.from_bytes(self.data[9:11],	byteorder='little') / 10.0
+							self.fields['bat_volt']		= int.from_bytes(self.data[11:13],	byteorder='little') / 10.0
+							self.fields['chg_cur']		= int.from_bytes(self.data[13:15],	byteorder='little') / 10.0
 							self.fields['load_volt']	= int.from_bytes(self.data[17:19],	byteorder='little') / 10.0
-							self.fields['load_cur']	= int.from_bytes(self.data[19:21],	byteorder='little') / 10.0
+							self.fields['load_cur']		= int.from_bytes(self.data[19:21],	byteorder='little') / 10.0
 							self.fields['chg_power']	= int.from_bytes(self.data[21:23],	byteorder='little')
-							self.fields['load_power']= int.from_bytes(self.data[23:25],	byteorder='little')
-							self.fields['bat_temp']	= self.data[25]
-							self.fields['int_temp']	= self.data[27]
+							self.fields['load_power']	= int.from_bytes(self.data[23:25],	byteorder='little')
+							self.fields['bat_temp']		= self.data[25]
+							self.fields['int_temp']		= self.data[27] if self.data[27] < 200 else self.data[27] - 256
 							self.fields['soc']		= self.data[29]
-							self.fields['co2_gram']	= int.from_bytes(self.data[33:35], byteorder='little')
+							self.fields['co2_gram']		= int.from_bytes(self.data[33:35], byteorder='little')
 
 							self.callback(self.fields)
 

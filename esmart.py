@@ -90,7 +90,7 @@ class esmart:
 							self.fields['load_cur']	= int.from_bytes(self.data[19:21],	byteorder='little') / 10.0
 							self.fields['chg_power']	= int.from_bytes(self.data[21:23],	byteorder='little')
 							self.fields['load_power']= int.from_bytes(self.data[23:25],	byteorder='little')
-							self.fields['ext_temp']	= self.data[25]
+							self.fields['ext_temp']	= self.data[25] if self.data[25] < 200 else self.data[25] - 256
 							self.fields['int_temp']	= self.data[27] if self.data[27] < 200 else self.data[27] - 256
 							self.fields['soc']		= self.data[29]
 							self.fields['co2_gram']	= int.from_bytes(self.data[33:35], byteorder='little')
